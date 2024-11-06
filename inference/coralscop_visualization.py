@@ -7,7 +7,7 @@ import pycocotools.mask as mask_util
 import cv2
 from matplotlib.patches import Polygon
 import itertools
-from visualizer import Visualizer
+from inference.visualizer import Visualizer
 from detectron2.data import MetadataCatalog
 metadata = MetadataCatalog.get('coco_2017_train_panoptic')
 import argparse
@@ -57,21 +57,18 @@ def add_boundary(node_coods,ax):
     polygon = Polygon(node_coods, closed=False, edgecolor='r')
     ax.add_patch(polygon)
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--img_path", type=str, required=True, help="image path")
-    parser.add_argument("--json_path", type=str, required=True, help="json path")
-    parser.add_argument("--output_path", type=str, required=True, help="output path")
-    parser.add_argument("--alpha", type=float, default=0.4, help="transparency")
-    parser.add_argument("--min_area", type=float, default=4096, help="min area")
-    args = parser.parse_args()
-    alpha = args.alpha
+def visualize_predictions(img_path,
+                          json_path,
+                          output_path,
+                          alpha=0.4,
+                          min_area=4096):
+    alpha = alpha
     label_mode = '1'
     anno_mode = ['Mask']
-    json_path = args.json_path
-    img_path = args.img_path
-    output_path = args.output_path
-    min_area=args.min_area
+    json_path = json_path
+    img_path = img_path
+    output_path = output_path
+    min_area=min_area
     for files in glob.glob(os.path.join(json_path,"*.json")):
         with open(files, "r", encoding='utf-8') as f:
             aa = json.loads(f.read())
@@ -108,7 +105,4 @@ def main():
                 os.mkdir(output_path)
             plt.savefig(os.path.join(output_path,file_name),bbox_inches="tight")
             plt.gcf().clear()
-
-
-if __name__ == "__main__":
-    main()
+            plt.close()
