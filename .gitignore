@@ -81,5 +81,8 @@ outputs/
 *.ply
 *.pcd
 
-# Ignore detectron2 repositpry folder
+# Ignore detectron2 repository folder
 detectron2/
+
+# Ignore experiments folder
+experiments/

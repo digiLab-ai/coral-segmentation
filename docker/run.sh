@@ -1,0 +1,1 @@
+sudo docker run --gpus all -it digiLab-ai/coral-segmentation:latest
