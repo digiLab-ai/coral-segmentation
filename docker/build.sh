@@ -1,1 +1,1 @@
-sudo docker build -t="coral-segmentation:latest" .
+docker build -t="coral-segmentation:latest" .
