@@ -1,1 +1,1 @@
-docker run --gpus all -w /coral-segmentation -v $1:/coral-segmentation -it digiLab-ai/coral-segmentation:latest
+docker run --gpus all -w /coral-segmentation -v $1:/coral-segmentation -it coral-segmentation:latest
