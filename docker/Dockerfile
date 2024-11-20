@@ -26,8 +26,6 @@ RUN pip install opencv-python
 RUN git clone https://github.com/facebookresearch/detectron2.git
 RUN pip install -e detectron2
 
-WORKDIR /coral-segmentation
-
 # Run test script for inference
 ENTRYPOINT ["python3", "test.py"]
 
