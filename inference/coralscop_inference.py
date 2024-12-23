@@ -13,7 +13,7 @@ def run_coralscop(test_img_path,
                   model_type='vit_b',  
                   iou_threshold=0.72, 
                   sta_threshold=0.62,
-                  point_number=32,
+                  point_number=48,
                   batch_size=1,
                   gpu=0,
                   image_size=1024
