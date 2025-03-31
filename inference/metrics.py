@@ -1,37 +1,43 @@
-import os
-import glob
-import json
+from typing import Dict, List, Tuple
 
-def get_inference_metrics(img_path,
-                          json_path,
-                          output_path):
-    json_path = json_path
-    img_path = img_path
-    output_path = output_path
+def get_inference_metrics(masks_list: List[Dict]) -> Tuple[Dict, Dict]:
+    """
+    Function to retrieve standard metrics for segmentation mask
+
+    Parameters
+    __________
+    masks_list: List[Dict]
+        List of Masks information for a set of images.
+        Masks generated fdor a single image is a dictionary.
+
+    Returns
+    _______
+    Tuple[Dict, Dict]
+        Dictionary of Average IoU threshold values for images
+        Dictionary of Stability Threshold values for images
+    
+    """
     pred_metrics_iou = {}
     pred_metrics_sta = {}
-    for files in glob.glob(os.path.join(json_path,"*.json")):
-        with open(files, "r", encoding='utf-8') as f:
-            aa = json.loads(f.read())
-            images = aa['image']
-            annotations = aa['annotations']
-            img_name=images['file_name']
-            # file_name = f"metrics_{img_name}"
-            iou_per_image = {}
-            mask_sta_per_image = {}
+  
+    for j in range(len(masks_list)):
+        aa = masks_list[j]
+        annotations = aa['annotations']
+        iou_per_image = {}
+        mask_sta_per_image = {}
 
-            for i, ann in enumerate(annotations):
-                iou_per_image[f"iou_{i}"] = ann["predicted_iou"]
-                mask_sta_per_image[f"sta_value_{i}"] = ann["stability_score"]
+        for i, ann in enumerate(annotations):
+            iou_per_image[f"iou_{i}"] = ann["predicted_iou"]
+            mask_sta_per_image[f"sta_value_{i}"] = ann["stability_score"]
 
-            avg_pred_iou = sum([value for _, value in iou_per_image.items()]) / len(iou_per_image.keys())
-            avg_mask_sta_score = sum([value for _, value in mask_sta_per_image.items()]) / len(mask_sta_per_image.keys())
-            # print(f"Average IoU for image {img_name} is:", avg_pred_iou)
-            # print(f"Average mask stability score for image {img_name} is:", avg_mask_sta_score)
-            pred_metrics_iou[f"iou_{img_name}"] = avg_pred_iou
-            pred_metrics_sta[f"mask_sta_score_{img_name}"] = avg_mask_sta_score
+        # Average Metrics over all masks per image
+        avg_pred_iou = sum([value for _, value in iou_per_image.items()]) / len(iou_per_image.keys())
+        avg_mask_sta_score = sum([value for _, value in mask_sta_per_image.items()]) / len(mask_sta_per_image.keys())
+        
+        # Append to book-keeping dictionary that holds the average values across images
+        pred_metrics_iou[f"iou_{j}"] = avg_pred_iou
+        pred_metrics_sta[f"mask_sta_score_{j}"] = avg_mask_sta_score
 
-    print("Average IoU for all images is: ", sum(pred_metrics_iou.values())/len(pred_metrics_iou.values()))
-    print("Average Stability score for all images is: ", sum(pred_metrics_sta.values())/len(pred_metrics_sta.values()))
+    # Return the dictionaries that hold image-level metrics
     return pred_metrics_iou, pred_metrics_sta
 

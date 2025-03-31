@@ -5,6 +5,7 @@ import numpy as np
 import pycocotools.mask as mask_util
 
 from segment_anything import sam_model_registry, SamAutomaticMaskGenerator
+from .coralscop_visualization import visualize_predictions
 from .utils import DEVICE, CHECKPOINT_PATH
 
 
@@ -70,10 +71,8 @@ def run_coralscop(
 
     Parameters
     ----------
-    test_img_path : str
-        Path to the test images
-    output_path : str
-        Path to save the output json files
+    images: List[np.ndarray]
+        List of images as numpy arrays
     mask_generator : SamAutomaticMaskGenerator
         Mask generator object
     batch_size : int
@@ -82,7 +81,7 @@ def run_coralscop(
         Image size for inference
     """
     image_counter = 1
-    mask_json = {}
+    masks_list = []
     for image in images:
         try:
             masks = mask_generator.generate(image)
@@ -115,7 +114,8 @@ def run_coralscop(
             out_anno.append(anno_json)
             anno_id += 1
         output_json["annotations"] = out_anno
-        mask_json[f"Image_{image_counter}"] = output_json
+        masks_list.append(output_json)
         image_counter += 1
 
-    return mask_json
+    masked_images_list = visualize_predictions(images, masks_list)
+    return masks_list, masked_images_list

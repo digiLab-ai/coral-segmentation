@@ -1,16 +1,19 @@
 import os
 import glob
-import json
-import numpy as np
-import matplotlib.pyplot as plt
-import pycocotools.mask as mask_util
-import cv2
-from matplotlib.patches import Polygon
 import itertools
-from inference.visualizer import Visualizer
+import json
+from typing import Dict, List
+
+import cv2
 from detectron2.data import MetadataCatalog
+import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
+import numpy as np
+import pycocotools.mask as mask_util
+
+from inference.visualizer import Visualizer
+
 metadata = MetadataCatalog.get('coco_2017_train_panoptic')
-import argparse
 color_mappings = {0: [224, 0, 0], 1: [138, 43, 226]}
 
 for k in color_mappings:
@@ -57,33 +60,39 @@ def add_boundary(node_coods,ax):
     polygon = Polygon(node_coods, closed=False, edgecolor='r')
     ax.add_patch(polygon)
 
-def visualize_predictions(img_path,
-                          json_path,
-                          output_path,
-                          alpha=0.4,
-                          min_area=4096):
+def visualize_predictions(
+    image_list: List[np.ndarray],
+    masks_list: List[Dict],
+    alpha: float = 0.4,
+    min_area: int = 4096) -> List[np.ndarray]:
+    """
+    Function to visualize segmentation masks on the original images
+
+    Parameters
+    __________
+    image_list: List[np.ndarray]
+        List of images in the numpy array format
+    masks_list: List[Dict]
+        List of masks where masks for every image is a dictionary
+    alpha: float
+        Transparency of the mask
+    min_area: int 
+        Minimum area of the mask
+
+    Returns
+    _______
+    List[np.ndarray]
+        List of masked images
+    """
     alpha = alpha
     label_mode = '1'
     anno_mode = ['Mask']
-    json_path = json_path
-    img_path = img_path
-    output_path = output_path
     min_area=min_area
-    for files in glob.glob(os.path.join(json_path,"*.json")):
-        with open(files, "r", encoding='utf-8') as f:
-            aa = json.loads(f.read())
-            images = aa['image']
+    masked_images = []
+    for i in range(len(image_list)):
+            aa = masks_list[i]
             annotations = aa['annotations']
-            img_name=images['file_name']
-            print(img_name)
-            _,file_name=os.path.split(img_name)
-            if os.path.exists(os.path.join(output_path, file_name)):
-                continue
-            _,json_name=os.path.split(files)
-            if not os.path.exists(os.path.join(img_path, json_name.replace(".json",".jpg"))):
-                continue
-            image = cv2.imread(os.path.join(img_path, json_name.replace(".json",".jpg")))
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            image = cv2.cvtColor(image_list[i], cv2.COLOR_BGR2RGB)
             visual = Visualizer(image, metadata=metadata)
             label = 1
             mask_map = np.zeros(image.shape, dtype=np.uint8)
@@ -98,11 +107,6 @@ def visualize_predictions(img_path,
                                                            anno_mode=anno_mode)
                 mask_map[mask == 1] = label
             im = demo.get_image()
-            plt.figure(figsize=(20, 20))
-            plt.imshow(im)
-            plt.axis('off')
-            if not os.path.exists(output_path):
-                os.mkdir(output_path)
-            plt.savefig(os.path.join(output_path,file_name),bbox_inches="tight")
-            plt.gcf().clear()
-            plt.close()
+            masked_images.append(im)
+
+    return masked_images
