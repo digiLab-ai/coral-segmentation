@@ -17,6 +17,7 @@ RUN apt-get update && \
 
 # Clone repository and set working directory
 RUN git clone https://github.com/digiLab-ai/coral-segmentation.git
+# COPY inference/ segment_anything/ main.py 
 
 # Install requirements to run model
 RUN pip install torch==2.3.0 torchvision==0.18.0 --index-url https://download.pytorch.org/whl/cu121
@@ -27,6 +28,6 @@ RUN git clone https://github.com/facebookresearch/detectron2.git
 RUN pip install -e detectron2
 
 # Run test script for inference
-ENTRYPOINT ["python3", "test.py"]
+ENTRYPOINT ["python3", "main.py"]
 
 

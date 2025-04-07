@@ -84,3 +84,6 @@ for i in range(len(masked_images)):
     plt.savefig(os.path.join(output_path, f"image_{i}"), bbox_inches="tight")
     plt.gcf().clear()
     plt.close()
+
+os.chmod(json_output_path, 0o777)
+os.chmod(output_path, 0o777)
