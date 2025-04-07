@@ -52,20 +52,18 @@ We provide the trained [CoralSCOP model](https://www.dropbox.com/scl/fi/pw5jiq9o
 
 **4. Testing and visualization**
 
-Testing the model based on your own coral reef images. The outputs will be saved in JSON format (COCO RLE). Please specify the output folder:
+This is a repository that is meant to run segmentation on videos. However, the underlying model can only process images and not videos. 
+So, before trying to run inference with the model we can pre-process the video to obtain a set of images from the video. To do this, run the following command:
 
 ```
-python test.py --model_type vit_b --checkpoint_path ./checkpoints/vit_b_coralscop.pth --iou_threshold 0.72 --sta_threshold 0.62 --test_img_path ./demo_imgs/ --output_path ./demo_imgs_output --gpu 0 --point_number 32
+python preprocess.py --video_path=<PATH_TO_VIDEO> --img_path=<OUTPUT_PATH_TO_WRITE_IMAGES>
 ```
 
-`model_type` indicates the backbone type; `checkpoint_path`: model checkpoint path, please change to your path; `iou_threshold`: predict iou threshhold, masks with predicted iou lower than 0.72 will be removed;`sta_threshold`: stability score threshhold, masks with stability score lower than 0.62 will be removed; `test_img_path`: your testing image path; `output_dir`: output path for saving the generated jsons; `gpu`: which gpu to use.
-   
-Visualize the generated jsons :
+The outputs from the pre-processing step are a set of images stored in the specified directory. To segment the pre-processed images, run the following command:
 
 ```
-python coralscop_visualization.py --img_path ./demo_imgs/ --json_path ./demo_imgs_output/ --output_path ./vis_demo 
+python main.py --test_img_path=<PATH_TO_IMAGES> --json_mask_output=<PATH_TO_STORE_MASKS_IN_JSON> --output_path=<PATH_TO_STORE_MASKED_IMAGES> --checkpoint_path=<PATH_TO_MODEL_CHECKPOINT>
 ```
-`img_path`: same as the `test_img_path`, the testing images; `json_path`: same sa the `output_dir`, the path for saving generated json; `output_path`: the path for saving the images with visualizations. 
 
 ## Acknowledgement
 
